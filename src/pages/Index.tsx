@@ -1,14 +1,44 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+import { AuthForm } from '@/components/auth/AuthForm';
+import { ProfileSetup } from '@/components/onboarding/ProfileSetup';
+import Dashboard from './Dashboard';
+import { Loader2 } from 'lucide-react';
 
 const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+  const { user, loading: authLoading } = useAuth();
+  const { profile, isLoading: profileLoading } = useProfile();
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
-    </div>
-  );
+    );
+  }
+
+  // Not logged in - show auth form
+  if (!user) {
+    return <AuthForm />;
+  }
+
+  // Loading profile
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Profile not complete - show onboarding
+  if (!profile?.calorie_goal || profile.weight === 70 && profile.height === 170 && profile.age === 25) {
+    return <ProfileSetup />;
+  }
+
+  // Fully authenticated and set up - show dashboard
+  return <Dashboard />;
 };
 
 export default Index;
