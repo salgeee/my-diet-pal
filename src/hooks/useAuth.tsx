@@ -86,6 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('auth_token');
     setUser(null);
     setSession(null);
+    // Redirecionar para a página inicial
+    window.location.href = '/';
   };
 
   return (
