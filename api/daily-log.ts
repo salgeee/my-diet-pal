@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { connectDB, DailyLog, FoodEntry } from '../lib/mongodb';
+import { connectDB, DailyLog, FoodEntry } from '../lib/mongodb.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
