@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Utensils, User } from 'lucide-react';
+import { Home, Utensils, User, Calendar, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function MobileNav() {
@@ -7,7 +7,9 @@ export function MobileNav() {
 
   const navItems = [
     { path: '/', label: 'Hoje', icon: Home },
-    { path: '/meals', label: 'Refeições', icon: Utensils },
+    { path: '/meals', label: 'Dieta', icon: Utensils },
+    { path: '/deficits', label: 'Déficits', icon: TrendingDown },
+    { path: '/history', label: 'Histórico', icon: Calendar },
     { path: '/profile', label: 'Perfil', icon: User },
   ];
 
@@ -23,7 +25,7 @@ export function MobileNav() {
               key={item.path}
               to={item.path}
               className={cn(
-                'flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-colors',
+                'flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-colors',
                 isActive
                   ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground'

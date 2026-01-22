@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from './useAuth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,14 +30,10 @@ export function useMealPlans() {
     queryFn: async () => {
       if (!user?.id) return [];
       
-      const { data, error } = await supabase
-        .from('meal_plans')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('meal_order', { ascending: true });
+      const { data, error } = await api.get<MealPlan[]>('/meal-plans');
 
-      if (error) throw error;
-      return data as MealPlan[];
+      if (error) throw new Error(error);
+      return data || [];
     },
     enabled: !!user?.id,
   });
@@ -46,19 +42,12 @@ export function useMealPlans() {
     mutationFn: async () => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      const mealsToInsert = DEFAULT_MEALS.map(meal => ({
-        ...meal,
-        user_id: user.id,
-        is_default: true,
-      }));
+      const { data, error } = await api.post<MealPlan[]>('/meal-plans', {
+        action: 'createDefaults',
+      });
 
-      const { data, error } = await supabase
-        .from('meal_plans')
-        .insert(mealsToInsert)
-        .select();
-
-      if (error) throw error;
-      return data;
+      if (error) throw new Error(error);
+      return data || [];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meal_plans', user?.id] });
@@ -69,21 +58,13 @@ export function useMealPlans() {
     mutationFn: async (meal: { name: string; target_calories: number }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      const maxOrder = Math.max(...mealPlans.map(m => m.meal_order), 0);
+      const { data, error } = await api.post<MealPlan>('/meal-plans', {
+        action: 'create',
+        ...meal,
+      });
 
-      const { data, error } = await supabase
-        .from('meal_plans')
-        .insert({
-          ...meal,
-          user_id: user.id,
-          meal_order: maxOrder + 1,
-          is_default: false,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      if (error) throw new Error(error);
+      return data!;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meal_plans', user?.id] });
@@ -96,15 +77,10 @@ export function useMealPlans() {
 
   const updateMealPlan = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<MealPlan> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('meal_plans')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
+      const { data, error } = await api.put<MealPlan>('/meal-plans', { id, ...updates });
 
-      if (error) throw error;
-      return data;
+      if (error) throw new Error(error);
+      return data!;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meal_plans', user?.id] });
@@ -114,12 +90,9 @@ export function useMealPlans() {
 
   const deleteMealPlan = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('meal_plans')
-        .delete()
-        .eq('id', id);
+      const { error } = await api.delete(`/meal-plans?id=${id}`);
 
-      if (error) throw error;
+      if (error) throw new Error(error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meal_plans', user?.id] });

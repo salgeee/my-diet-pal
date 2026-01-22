@@ -1,73 +1,103 @@
-# Welcome to your Lovable project
+# My Diet Pal
 
-## Project info
+Aplicação de controle de dieta e calorias construída com React, TypeScript, MongoDB e Vercel.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Como rodar o projeto no seu PC
 
-## How can I edit this code?
+### Pré-requisitos
 
-There are several ways of editing your application.
+- **Node.js** (versão 18 ou superior) - [Baixar Node.js](https://nodejs.org/)
+- **npm** (vem junto com o Node.js) ou **bun** (opcional)
+- **Conta no MongoDB Atlas** (gratuita) - [Criar conta](https://www.mongodb.com/cloud/atlas/register)
 
-**Use Lovable**
+### Passo a passo
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+1. **Instale as dependências do projeto**
 
-Changes made via Lovable will be committed automatically to this repo.
+   ```bash
+   npm install
+   ```
 
-**Use your preferred IDE**
+2. **Configure o MongoDB Atlas**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+   - Acesse [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+   - Crie um cluster gratuito (M0 - Free)
+   - Crie um usuário de banco de dados
+   - Adicione seu IP à whitelist (ou use `0.0.0.0/0` para desenvolvimento)
+   - Clique em "Connect" e copie a connection string
+   - A connection string será algo como: `mongodb+srv://usuario:senha@cluster.mongodb.net/?retryWrites=true&w=majority`
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+3. **Configure as variáveis de ambiente**
 
-Follow these steps:
+   Crie um arquivo `.env` na raiz do projeto:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+   ```env
+   # MongoDB Connection String
+   MONGODB_URI=mongodb+srv://usuario:senha@cluster.mongodb.net/dietpal?retryWrites=true&w=majority
+   
+   # Para desenvolvimento local, use a URL da API (deixe vazio para usar /api)
+   VITE_API_URL=
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+   > ⚠️ **Importante**: Substitua `usuario`, `senha` e `cluster` pelos valores do seu MongoDB Atlas. O nome do banco (`dietpal`) pode ser qualquer um.
 
-# Step 3: Install the necessary dependencies.
-npm i
+4. **Inicie o servidor de desenvolvimento**
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+   ```bash
+   npm run dev
+   ```
 
-**Edit a file directly in GitHub**
+5. **Acesse a aplicação**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+   Abra seu navegador em: `http://localhost:8080`
 
-**Use GitHub Codespaces**
+   > 💡 **Nota**: Para desenvolvimento local, você precisará usar um proxy ou configurar o Vite para redirecionar `/api` para as serverless functions. Para produção na Vercel, isso funciona automaticamente.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Outros comandos úteis
 
-## What technologies are used for this project?
+- `npm run build` - Cria uma versão de produção otimizada
+- `npm run preview` - Visualiza a build de produção localmente
+- `npm run lint` - Verifica problemas no código
+- `npm test` - Executa os testes
 
-This project is built with:
+## 📦 Deploy na Vercel
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. **Faça push do código para o GitHub**
 
-## How can I deploy this project?
+2. **Conecte o repositório na Vercel**
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+   - Acesse [vercel.com](https://vercel.com)
+   - Clique em "New Project"
+   - Importe seu repositório do GitHub
 
-## Can I connect a custom domain to my Lovable project?
+3. **Configure as variáveis de ambiente na Vercel**
 
-Yes, you can!
+   - Na página do projeto, vá em "Settings" > "Environment Variables"
+   - Adicione: `MONGODB_URI` com sua connection string do MongoDB Atlas
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+4. **Deploy!**
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+   A Vercel detectará automaticamente o projeto e fará o deploy. As API routes em `/api` serão automaticamente convertidas em serverless functions.
+
+## 🛠️ Tecnologias utilizadas
+
+- **Vite** - Build tool e dev server
+- **React** - Biblioteca JavaScript para interfaces
+- **TypeScript** - Superset do JavaScript com tipagem estática
+- **shadcn-ui** - Componentes UI
+- **Tailwind CSS** - Framework CSS utilitário
+- **MongoDB Atlas** - Banco de dados NoSQL gratuito
+- **Vercel** - Plataforma de deploy e serverless functions
+- **React Router** - Roteamento para React
+- **React Query** - Gerenciamento de estado do servidor
+
+## 🔐 Segurança
+
+> ⚠️ **Atenção**: Este projeto usa autenticação simples para projetos pessoais. As senhas são armazenadas em texto plano no banco de dados. Para produção, considere usar bcrypt para hash de senhas.
+
+## 📝 Estrutura do Projeto
+
+- `/src` - Código fonte do frontend React
+- `/api` - Serverless functions para a Vercel
+- `/lib` - Utilitários e configuração do MongoDB
+- `/public` - Arquivos estáticos

@@ -24,7 +24,9 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   const navItems = [
     { path: '/', label: 'Hoje' },
-    { path: '/meals', label: 'Refeições' },
+    { path: '/meals', label: 'Dieta' },
+    { path: '/deficits', label: 'Déficits' },
+    { path: '/history', label: 'Histórico' },
     { path: '/profile', label: 'Perfil' },
   ];
 

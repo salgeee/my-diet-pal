@@ -6,9 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Dumbbell } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export function AuthForm() {
   const { signIn, signUp } = useAuth();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +24,11 @@ export function AuthForm() {
     const password = formData.get('password') as string;
 
     const { error } = await signIn(email, password);
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+    } else {
+      toast({ title: 'Bem-vindo!', description: 'Login realizado com sucesso.' });
+    }
     setIsLoading(false);
   };
 
@@ -37,7 +43,11 @@ export function AuthForm() {
     const name = formData.get('name') as string;
 
     const { error } = await signUp(email, password, name);
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+    } else {
+      toast({ title: 'Conta criada!', description: 'Bem-vindo ao DietTracker.' });
+    }
     setIsLoading(false);
   };
 

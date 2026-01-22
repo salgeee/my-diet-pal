@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useMemo } from 'react';
+import { tacoFoods } from '@/data/taco-foods';
 
 export interface FoodItem {
   fdcId: number;
@@ -9,80 +9,43 @@ export interface FoodItem {
   carbs: number;
   fat: number;
   servingSize?: number;
+  category?: string;
 }
 
-// Using USDA FoodData Central API (free, no key required for basic searches)
-const USDA_API_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search';
-const USDA_API_KEY = 'DEMO_KEY'; // Free demo key
+// Dados da Tabela TACO - Tabela Brasileira de Composição de Alimentos (UNICAMP)
+// Valores por 100g - dados incluídos localmente para melhor performance
 
 export function useFoodSearch(searchQuery: string) {
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
 
-  const { data: foods = [], isLoading, error } = useQuery({
-    queryKey: ['food_search', debouncedQuery],
-    queryFn: async () => {
-      if (!debouncedQuery || debouncedQuery.length < 2) return [];
-
-      const response = await fetch(
-        `${USDA_API_URL}?api_key=${USDA_API_KEY}&query=${encodeURIComponent(debouncedQuery)}&pageSize=15&dataType=Foundation,SR Legacy`
-      );
-
-      if (!response.ok) throw new Error('Failed to fetch foods');
-
-      const data = await response.json();
-      
-      return (data.foods || []).map((food: any) => {
-        const nutrients = food.foodNutrients || [];
-        
-        const getCalories = () => {
-          const energy = nutrients.find((n: any) => 
-            n.nutrientName?.toLowerCase().includes('energy') && 
-            n.unitName?.toLowerCase() === 'kcal'
-          );
-          return energy?.value || 0;
-        };
-
-        const getProtein = () => {
-          const protein = nutrients.find((n: any) => 
-            n.nutrientName?.toLowerCase().includes('protein')
-          );
-          return protein?.value || 0;
-        };
-
-        const getCarbs = () => {
-          const carbs = nutrients.find((n: any) => 
-            n.nutrientName?.toLowerCase().includes('carbohydrate')
-          );
-          return carbs?.value || 0;
-        };
-
-        const getFat = () => {
-          const fat = nutrients.find((n: any) => 
-            n.nutrientName?.toLowerCase().includes('total lipid') ||
-            n.nutrientName?.toLowerCase() === 'fat'
-          );
-          return fat?.value || 0;
-        };
-
-        return {
-          fdcId: food.fdcId,
-          description: food.description,
-          calories: getCalories(),
-          protein: getProtein(),
-          carbs: getCarbs(),
-          fat: getFat(),
-          servingSize: 100, // USDA data is per 100g
-        };
-      });
-    },
-    enabled: debouncedQuery.length >= 2,
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-  });
+  // Filtra os alimentos baseado na busca
+  const foods = useMemo(() => {
+    if (debouncedQuery.length < 2) return [];
+    
+    const query = debouncedQuery.toLowerCase();
+    
+    return tacoFoods
+      .filter((food) => 
+        food.name.toLowerCase().includes(query) ||
+        food.category.toLowerCase().includes(query)
+      )
+      .slice(0, 20) // Limita a 20 resultados
+      .map((food) => ({
+        fdcId: food.id,
+        description: food.name,
+        calories: food.calories,
+        protein: food.protein,
+        carbs: food.carbs,
+        fat: food.fat,
+        servingSize: 100,
+        category: food.category,
+      }));
+  }, [debouncedQuery]);
 
   return {
     foods,
-    isLoading,
-    error,
+    isLoading: false,
+    error: null,
     setSearchQuery: setDebouncedQuery,
   };
 }
