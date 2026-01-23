@@ -69,6 +69,9 @@ export interface IProfile {
   sex: 'male' | 'female';
   activity_level: string;
   calorie_goal?: number;
+  protein_goal?: number;
+  carbs_goal?: number;
+  fat_goal?: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -82,6 +85,9 @@ const ProfileSchema = new mongoose.Schema<IProfile>({
   sex: { type: String, enum: ['male', 'female'], default: 'male' },
   activity_level: { type: String, default: 'moderate' },
   calorie_goal: Number,
+  protein_goal: { type: Number, default: 0 },
+  carbs_goal: { type: Number, default: 0 },
+  fat_goal: { type: Number, default: 0 },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });

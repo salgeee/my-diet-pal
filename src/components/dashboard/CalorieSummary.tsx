@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 
 export function CalorieSummary() {
   const { profile } = useProfile();
-  const { totalCalories } = useDailyLog();
+  const { totalCalories, totalProtein, totalCarbs, totalFat } = useDailyLog();
   const { mealPlans } = useMealPlans();
 
   if (!profile) return null;
@@ -88,6 +88,59 @@ export function CalorieSummary() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Macronutrientes */}
+      {(profile.protein_goal || profile.carbs_goal || profile.fat_goal) && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Macronutrientes</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {profile.protein_goal > 0 && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Proteína</span>
+                  <span className="font-semibold">
+                    {totalProtein.toFixed(0)}g / {profile.protein_goal}g
+                  </span>
+                </div>
+                <Progress 
+                  value={Math.min((totalProtein / profile.protein_goal) * 100, 100)} 
+                  className="h-2"
+                />
+              </div>
+            )}
+            {profile.carbs_goal > 0 && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Carboidratos</span>
+                  <span className="font-semibold">
+                    {totalCarbs.toFixed(0)}g / {profile.carbs_goal}g
+                  </span>
+                </div>
+                <Progress 
+                  value={Math.min((totalCarbs / profile.carbs_goal) * 100, 100)} 
+                  className="h-2"
+                />
+              </div>
+            )}
+            {profile.fat_goal > 0 && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Gordura</span>
+                  <span className="font-semibold">
+                    {totalFat.toFixed(0)}g / {profile.fat_goal}g
+                  </span>
+                </div>
+                <Progress 
+                  value={Math.min((totalFat / profile.fat_goal) * 100, 100)} 
+                  className="h-2"
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Quick stats */}
       {plannedCalories > 0 && (

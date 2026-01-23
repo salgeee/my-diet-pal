@@ -21,6 +21,9 @@ export default function Profile() {
     sex: 'male' as 'male' | 'female',
     activity_level: 'moderate',
     calorie_goal: 0,
+    protein_goal: 0,
+    carbs_goal: 0,
+    fat_goal: 0,
   });
 
   const startEditing = () => {
@@ -33,6 +36,9 @@ export default function Profile() {
         sex: profile.sex as 'male' | 'female',
         activity_level: profile.activity_level,
         calorie_goal: Number(profile.calorie_goal) || 0,
+        protein_goal: Number(profile.protein_goal) || 0,
+        carbs_goal: Number(profile.carbs_goal) || 0,
+        fat_goal: Number(profile.fat_goal) || 0,
       });
       setIsEditing(true);
     }
@@ -227,6 +233,48 @@ export default function Profile() {
                   />
                 </div>
 
+                <div className="space-y-4 pt-2">
+                  <h3 className="font-semibold text-sm text-muted-foreground">Metas de Macronutrientes (opcional)</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="protein_goal">Proteína (g)</Label>
+                      <Input
+                        id="protein_goal"
+                        type="number"
+                        value={formData.protein_goal}
+                        onChange={(e) => setFormData({ ...formData, protein_goal: Number(e.target.value) })}
+                        min={0}
+                        max={500}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="carbs_goal">Carboidratos (g)</Label>
+                      <Input
+                        id="carbs_goal"
+                        type="number"
+                        value={formData.carbs_goal}
+                        onChange={(e) => setFormData({ ...formData, carbs_goal: Number(e.target.value) })}
+                        min={0}
+                        max={1000}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="fat_goal">Gordura (g)</Label>
+                      <Input
+                        id="fat_goal"
+                        type="number"
+                        value={formData.fat_goal}
+                        onChange={(e) => setFormData({ ...formData, fat_goal: Number(e.target.value) })}
+                        min={0}
+                        max={300}
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div className="flex gap-2 pt-4">
                   <Button variant="outline" onClick={() => setIsEditing(false)} className="flex-1">
                     Cancelar
@@ -268,12 +316,33 @@ export default function Profile() {
                     {getActivityLevelLabel(profile.activity_level)}
                   </span>
                 </div>
-                <div className="flex justify-between py-2">
+                <div className="flex justify-between py-2 border-b">
                   <span className="text-muted-foreground">Meta diária</span>
                   <span className="font-medium">
                     {formatCalories(Number(profile.calorie_goal) || get - 500)} kcal
                   </span>
                 </div>
+                {(profile.protein_goal || profile.carbs_goal || profile.fat_goal) && (
+                  <>
+                    <div className="pt-2">
+                      <p className="text-sm font-semibold text-muted-foreground mb-2">Metas de Macronutrientes</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center p-3 rounded-lg bg-secondary/50">
+                        <p className="text-xl font-bold text-primary">{profile.protein_goal || 0}g</p>
+                        <p className="text-xs text-muted-foreground">Proteína</p>
+                      </div>
+                      <div className="text-center p-3 rounded-lg bg-secondary/50">
+                        <p className="text-xl font-bold text-accent">{profile.carbs_goal || 0}g</p>
+                        <p className="text-xs text-muted-foreground">Carboidratos</p>
+                      </div>
+                      <div className="text-center p-3 rounded-lg bg-secondary/50">
+                        <p className="text-xl font-bold text-warning">{profile.fat_goal || 0}g</p>
+                        <p className="text-xs text-muted-foreground">Gordura</p>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </CardContent>

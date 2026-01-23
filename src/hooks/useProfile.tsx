@@ -13,6 +13,9 @@ export interface Profile {
   sex: 'male' | 'female';
   activity_level: string;
   calorie_goal: number | null;
+  protein_goal?: number;
+  carbs_goal?: number;
+  fat_goal?: number;
   created_at: string;
   updated_at: string;
 }
