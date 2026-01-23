@@ -234,7 +234,10 @@ export default function Profile() {
                 </div>
 
                 <div className="space-y-4 pt-2">
-                  <h3 className="font-semibold text-sm text-muted-foreground">Metas de Macronutrientes (opcional)</h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-sm text-muted-foreground">Metas de Macronutrientes</h3>
+                    <p className="text-xs text-muted-foreground">Calculadas automaticamente da sua dieta</p>
+                  </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="protein_goal">Proteína (g)</Label>

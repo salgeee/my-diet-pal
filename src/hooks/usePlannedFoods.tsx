@@ -62,6 +62,7 @@ export function usePlannedFoods(mealPlanId?: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planned_foods'] });
       queryClient.invalidateQueries({ queryKey: ['meal_plans'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
       toast({ title: 'Alimento adicionado ao plano!' });
     },
     onError: (error) => {
@@ -79,6 +80,7 @@ export function usePlannedFoods(mealPlanId?: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planned_foods'] });
       queryClient.invalidateQueries({ queryKey: ['meal_plans'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
       toast({ title: 'Alimento atualizado!' });
     },
   });
@@ -92,6 +94,7 @@ export function usePlannedFoods(mealPlanId?: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planned_foods'] });
       queryClient.invalidateQueries({ queryKey: ['meal_plans'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
       toast({ title: 'Alimento removido do plano!' });
     },
   });

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useMealPlans, MealPlan } from '@/hooks/useMealPlans';
 import { usePlannedFoods, PlannedFood } from '@/hooks/usePlannedFoods';
 import { useDailyLog } from '@/hooks/useDailyLog';
 import { useFoodSearch, FoodItem } from '@/hooks/useFoodSearch';
+import { useProfile } from '@/hooks/useProfile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,7 @@ export default function Meals() {
   const { mealPlans, isLoading: isLoadingMeals, addMealPlan, updateMealPlan, deleteMealPlan } = useMealPlans();
   const { plannedFoods, addPlannedFood, deletePlannedFood, isLoading: isLoadingPlanned } = usePlannedFoods();
   const { foodEntries } = useDailyLog();
+  const { profile, updateProfile } = useProfile();
   
   const [isAddMealOpen, setIsAddMealOpen] = useState(false);
   const [editingMeal, setEditingMeal] = useState<MealPlan | null>(null);
@@ -44,6 +46,30 @@ export default function Meals() {
     carbs: 0,
     fat: 0,
   });
+
+  // Calcular e atualizar metas de macros automaticamente baseado na dieta planejada
+  useEffect(() => {
+    if (!profile || isLoadingPlanned || plannedFoods.length === 0) return;
+
+    // Calcular totais dos alimentos planejados
+    const totalProtein = Math.round(plannedFoods.reduce((sum, food) => sum + (food.protein || 0), 0));
+    const totalCarbs = Math.round(plannedFoods.reduce((sum, food) => sum + (food.carbs || 0), 0));
+    const totalFat = Math.round(plannedFoods.reduce((sum, food) => sum + (food.fat || 0), 0));
+
+    // Atualizar apenas se houver mudança significativa (diferença de pelo menos 1g)
+    const hasChanged = 
+      Math.abs((profile.protein_goal || 0) - totalProtein) >= 1 ||
+      Math.abs((profile.carbs_goal || 0) - totalCarbs) >= 1 ||
+      Math.abs((profile.fat_goal || 0) - totalFat) >= 1;
+
+    if (hasChanged) {
+      updateProfile({
+        protein_goal: totalProtein,
+        carbs_goal: totalCarbs,
+        fat_goal: totalFat,
+      });
+    }
+  }, [plannedFoods, profile, isLoadingPlanned, updateProfile]);
 
   // Filtrar alimentos planejados por refeição
   const getPlannedForMeal = (mealId: string) => {
