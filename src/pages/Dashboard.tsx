@@ -6,6 +6,8 @@ import { AddFoodDialog } from '@/components/dashboard/AddFoodDialog';
 import { QuickAddFood } from '@/components/dashboard/QuickAddFood';
 import { useMealPlans } from '@/hooks/useMealPlans';
 import { useDailyLog } from '@/hooks/useDailyLog';
+import { usePlannedFoods } from '@/hooks/usePlannedFoods';
+import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -13,6 +15,8 @@ import { ptBR } from 'date-fns/locale';
 export default function Dashboard() {
   const { mealPlans, isLoading: isLoadingMeals, createDefaultMeals, isCreatingDefaults } = useMealPlans();
   const { foodEntries, addFoodEntry, deleteFoodEntry, isLoading: isLoadingEntries } = useDailyLog();
+  const { plannedFoods, isLoading: isLoadingPlanned } = usePlannedFoods();
+  const { toast } = useToast();
   const [selectedMealId, setSelectedMealId] = useState<string | null>(null);
 
   // Create default meals if none exist
@@ -26,11 +30,58 @@ export default function Dashboard() {
     return foodEntries.filter(entry => entry.meal_plan_id === mealId);
   };
 
+  const getPlannedForMeal = (mealId: string) => {
+    return plannedFoods.filter(food => food.meal_plan_id === mealId);
+  };
+
   const handleAddFood = (mealId: string) => {
     setSelectedMealId(mealId);
   };
 
-  const isLoading = isLoadingMeals || isLoadingEntries;
+  const handleFollowPlan = async (mealId: string) => {
+    const plannedForMeal = getPlannedForMeal(mealId);
+    
+    if (plannedForMeal.length === 0) {
+      toast({
+        title: 'Sem alimentos planejados',
+        description: 'Configure os alimentos desta refeição na aba "Dieta" primeiro.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Adicionar todos os alimentos planejados
+    let addedCount = 0;
+    for (const food of plannedForMeal) {
+      try {
+        await new Promise<void>((resolve) => {
+          addFoodEntry({
+            food_name: food.food_name,
+            quantity_grams: food.quantity_grams,
+            calories: food.calories,
+            protein: food.protein,
+            carbs: food.carbs,
+            fat: food.fat,
+            meal_plan_id: mealId,
+          });
+          // Pequeno delay para não sobrecarregar
+          setTimeout(() => resolve(), 100);
+        });
+        addedCount++;
+      } catch (error) {
+        console.error('Erro ao adicionar alimento:', error);
+      }
+    }
+
+    if (addedCount > 0) {
+      toast({
+        title: 'Alimentos adicionados!',
+        description: `${addedCount} alimento(s) da dieta foram registrados.`,
+      });
+    }
+  };
+
+  const isLoading = isLoadingMeals || isLoadingEntries || isLoadingPlanned;
   const today = format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR });
 
   return (
@@ -59,8 +110,10 @@ export default function Dashboard() {
                   key={meal.id}
                   meal={meal}
                   entries={getEntriesForMeal(meal.id)}
+                  plannedFoods={getPlannedForMeal(meal.id)}
                   onAddFood={handleAddFood}
                   onDeleteEntry={deleteFoodEntry}
+                  onFollowPlan={handleFollowPlan}
                 />
               ))}
               <QuickAddFood />

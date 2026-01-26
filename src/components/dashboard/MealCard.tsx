@@ -1,27 +1,32 @@
 import { useState } from 'react';
 import { MealPlan } from '@/hooks/useMealPlans';
 import { FoodEntry } from '@/hooks/useDailyLog';
+import { PlannedFood } from '@/hooks/usePlannedFoods';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Trash2, ChevronDown, ChevronUp, Utensils } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Utensils, CheckCheck } from 'lucide-react';
 import { formatCalories } from '@/lib/calories';
 import { cn } from '@/lib/utils';
 
 interface MealCardProps {
   meal: MealPlan;
   entries: FoodEntry[];
+  plannedFoods?: PlannedFood[];
   onAddFood: (mealId: string) => void;
   onDeleteEntry: (id: string) => void;
+  onFollowPlan?: (mealId: string) => void;
 }
 
-export function MealCard({ meal, entries, onAddFood, onDeleteEntry }: MealCardProps) {
+export function MealCard({ meal, entries, plannedFoods = [], onAddFood, onDeleteEntry, onFollowPlan }: MealCardProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const consumed = entries.reduce((sum, e) => sum + Number(e.calories), 0);
   const target = Number(meal.target_calories);
   const remaining = target - consumed;
   const percentConsumed = target > 0 ? Math.min((consumed / target) * 100, 100) : 0;
+  
+  const hasPlannedFoods = plannedFoods.length > 0;
 
   const getStatusColor = () => {
     if (remaining >= 0) return 'bg-success';
@@ -92,15 +97,28 @@ export function MealCard({ meal, entries, onAddFood, onDeleteEntry }: MealCardPr
             </div>
           )}
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full mt-2"
-            onClick={() => onAddFood(meal.id)}
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            Adicionar alimento
-          </Button>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onAddFood(meal.id)}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Adicionar
+            </Button>
+            
+            {hasPlannedFoods && onFollowPlan && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => onFollowPlan(meal.id)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <CheckCheck className="w-4 h-4 mr-1" />
+                Segui o plano
+              </Button>
+            )}
+          </div>
 
           {remaining < 0 && (
             <p className="text-xs text-warning text-center">
